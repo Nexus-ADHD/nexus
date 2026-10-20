@@ -1,0 +1,30 @@
+# @ts-nocheck allowlist — NEX-140 ratchet (see scripts/check-ts-nocheck.mjs)
+#
+# Files permitted to carry a top-of-file `// @ts-nocheck`. CI (`node scripts/check-ts-nocheck.mjs`,
+# wired into the typecheck job) FAILS if any file carries the directive without being listed
+# here. The list may only SHRINK: to remove a directive, delete its line here in the same PR;
+# adding a line is a visible, reviewed admission of new debt and needs a reason + Linear ticket.
+#
+# Seeded 2026-06-15 with the 17 then-active directives (NEX-140). Every entry below is justified:
+# a permanent retain with a reason, or a pending removal with a tracking ticket.
+
+# --- Permanent retains (documented) ---
+app/(tabs)/index.tsx          # command module not yet extracted — see docs/typescript-hardening.md rule #3
+app/(tabs)/orbit.tsx          # 2797 lines, calendar-sync entanglement — intentionally retained
+src/features/home/horizon-review.tsx  # owned by NEX-163 (Design-the-Week); removing here collides
+
+# --- Pending removal (drop the line when its directive is removed) ---
+# NEX-177 — app root, dedicated PR (read commit 937e1bb first)
+app/_layout.tsx
+# NEX-175 — orbit detail/edit sheets
+src/features/orbit/EventDetailSheet.tsx
+src/features/orbit/ScheduleEditModal.tsx
+# NEX-176 — Tier-2 feature screens, one per PR
+app/(tabs)/inbox.tsx
+app/mandate/[id].tsx
+app/settings/apple-reminders.tsx
+src/features/auth/auth-screen.tsx
+src/features/paywall/paywall-screen.tsx
+src/features/reminders/triage-flow.tsx
+src/features/settings/settings-screen.tsx
+src/features/talk/talk-screen.tsx

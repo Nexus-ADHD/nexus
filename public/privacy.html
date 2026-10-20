@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexus - Privacy Policy</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0A0A0A; color: #CCC; line-height: 1.7; padding: 40px 24px; max-width: 720px; margin: 0 auto; }
+    h1 { color: #D4AF37; font-size: 24px; margin-bottom: 8px; letter-spacing: 2px; }
+    h2 { color: #D4AF37; font-size: 16px; margin-top: 32px; margin-bottom: 12px; letter-spacing: 1px; }
+    p, li { font-size: 14px; margin-bottom: 12px; color: #AAA; }
+    ul { padding-left: 20px; }
+    .date { color: #555; font-size: 12px; margin-bottom: 32px; }
+    a { color: #D4AF37; }
+  </style>
+</head>
+<body>
+  <h1>Privacy Policy</h1>
+  <p class="date">Last updated: August 15, 2026</p>
+
+  <p>Nexus ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our mobile application.</p>
+
+  <h2>1. Information We Collect</h2>
+  <p><strong>Account Information:</strong> When you create an account, we collect your email address and display name through our authentication provider (Supabase Auth).</p>
+  <p><strong>Phone Number:</strong> If you choose to add a phone number, we store it to support your account and optional future SMS features. We will not send you SMS messages without your separate, explicit consent.</p>
+  <p><strong>User-Generated Content:</strong> We store data you create within the app, including tasks, habits, calendar events, journal entries, mandates, and daily scores. This data is stored on your device and, if you enable cloud sync, on our servers.</p>
+  <p><strong>Voice Data:</strong> When you speak to Nexus, the recording is uploaded to OpenAI through our secure proxy and transcribed there. Live on-device speech recognition runs alongside it to show you words as you speak, and is used as a fallback if the upload fails, but the uploaded audio is the primary transcription path. We do not store raw audio recordings after transcription is complete.</p>
+  <p><strong>Connected Calendars:</strong> If you connect a Google or Microsoft calendar, we read your event details and store the account email and display name on your device so you can tell the accounts apart. To map your goals onto your real week, the titles of your recent events are sent to our AI provider through the secure proxy. Event notes and locations are not sent.</p>
+  <p><strong>Install Attribution:</strong> On iOS we ask Apple for an Apple Search Ads attribution token and pass it to RevenueCat, so we can tell which ads bring people to Nexus. This does not use the advertising identifier and does not track you across other apps or websites.</p>
+  <p><strong>Connected Recording Services:</strong> If you connect a PLAUD account, Nexus reads the transcript text of recordings you select, one at a time. We never request, download, or store audio. Your PLAUD sign-in tokens are kept in the iOS Keychain on your device and are never sent to our servers. Nexus does not keep the full transcript. It saves the proposals, which recording they came from, and a short word-for-word excerpt behind each proposal so you can check it against what you actually said. Those stay on your device and are not synced to our servers. Tasks you approve are then stored like anything else you create in the app.</p>
+  <p><strong>Usage and Analytics Data:</strong> We use PostHog to collect product-analytics events, such as screens viewed, in-app interactions, and app open and close, linked to a pseudonymous account identifier. This data is not anonymous. We never send your habits, mandates, reflections, or other personal content for analytics.</p>
+
+  <h2>2. How We Use Your Information</h2>
+  <ul>
+    <li>To provide and maintain the app's core functionality</li>
+    <li>To sync your data across devices when you enable cloud backup</li>
+    <li>To generate AI-powered insights, briefings, and recommendations</li>
+    <li>To turn a recording you select from a connected service into proposals you review before anything is saved</li>
+    <li>To send scheduled notifications and weekly email summaries (if enabled)</li>
+    <li>To process subscription payments through RevenueCat</li>
+    <li>To measure product usage so we can improve the app</li>
+  </ul>
+
+  <h2>3. Third-Party Services</h2>
+  <p>We share data with, or read data from, the following third-party services only as needed to provide the app:</p>
+  <ul>
+    <li><strong>Supabase:</strong> Authentication and cloud data storage</li>
+    <li><strong>OpenAI, Anthropic, and Moonshot:</strong> AI text generation, and voice transcription at OpenAI. All of it is accessed through our secure proxy, which routes a request to whichever provider serves the model in use. Text you ask Nexus to interpret, including a transcript imported from a connected recording service, is sent to that provider to produce the result. It is not retained by Nexus.</li>
+    <li><strong>PostHog:</strong> Product analytics (usage events tied to a pseudonymous identifier)</li>
+    <li><strong>Braintrust:</strong> Aggregated monitoring of AI quality. We do not send your personal content.</li>
+    <li><strong>RevenueCat:</strong> Subscription management and payment processing, and Apple Search Ads install attribution</li>
+    <li><strong>Twilio:</strong> Delivery of text messages, if you turn them on. Receives your phone number and the message.</li>
+    <li><strong>Resend:</strong> Delivery of email such as the welcome note and weekly summary. Receives your email address and the message.</li>
+    <li><strong>Apple Calendar:</strong> Calendar access with your permission</li>
+    <li><strong>PLAUD:</strong> If you connect it, we read transcripts of recordings you choose. Never audio. You can disconnect at any time, which deletes the sign-in tokens stored on your device.</li>
+    <li><strong>Expo Push Notifications:</strong> Delivery of scheduled reminders</li>
+  </ul>
+
+  <h2>4. Data Storage and Security</h2>
+  <p>Your data is stored on your device and, if you enable cloud sync, on Supabase's encrypted cloud infrastructure. We use industry-standard security measures to protect your information.</p>
+
+  <h2>5. Your Rights and Choices</h2>
+  <p>You can request to access, export, correct, or delete your personal data, and opt out of usage analytics, by contacting us at <a href="mailto:admin@thecircleoflight.net">admin@thecircleoflight.net</a>. We will respond within a reasonable time.</p>
+
+  <h2>6. Data Retention and Deletion</h2>
+  <p>We retain your information for as long as your account is active. To delete your account and all associated data, contact us at <a href="mailto:admin@thecircleoflight.net">admin@thecircleoflight.net</a> and we will remove it from our systems and our service providers, except where we are required to retain it by law. You can also clear local data by uninstalling the app.</p>
+
+  <h2>7. Selling of Data</h2>
+  <p>We do not sell your personal information, and we do not share it with advertisers or data brokers.</p>
+
+  <h2>8. Children's Privacy</h2>
+  <p>Nexus is not intended for use by children under 13. We do not knowingly collect personal information from children.</p>
+
+  <h2>9. Changes to This Policy</h2>
+  <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy within the app and updating the date above.</p>
+
+  <h2>10. Contact Us</h2>
+  <p>If you have questions about this Privacy Policy, contact us at <a href="mailto:admin@thecircleoflight.net">admin@thecircleoflight.net</a>.</p>
+</body>
+</html>

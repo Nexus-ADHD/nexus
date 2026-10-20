@@ -1,0 +1,10 @@
+# Intermediates. bake.py regenerates all of these from sources/.
+strip.png
+strip-*.png
+profile.json
+proof-*.png
+*.pyc
+__pycache__/
+proof-*.gif
+raw/
+spike/

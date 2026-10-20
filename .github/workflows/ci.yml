@@ -1,0 +1,132 @@
+# CI: runs on every pull request to main.
+#
+#   typecheck  : tsc --noEmit, then the @ts-nocheck ratchet (docs/ts-nocheck-allowlist.txt).
+#   lint       : eslint on the lines a PR changed, plus the repo guards in scripts/.
+#   test       : vitest (pure Node).
+#   deno-check : deno check on the edge functions a PR changed.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+# One in-flight run per PR; a new push cancels the previous run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      # NEX-140 ratchet: fail if any file carries // @ts-nocheck without being on
+      # docs/ts-nocheck-allowlist.txt. tsc stays green under @ts-nocheck, so this is
+      # the only thing that catches a newly-added directive (cf. the 937e1bb regression
+      # on _layout.tsx). Rides the already-required typecheck job — no new required check.
+      # Invoked directly (not via an npm script) to keep package.json untouched.
+      - run: node scripts/check-ts-nocheck.mjs
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # Backdrop resolution guard. The shipped cosmic backdrop was 941x1672 and
+      # rendered at ~65% of native panel resolution — soft, JPEG-mushed stars
+      # sitting under crisp full-resolution vector ones. Two optical worlds
+      # stacked, invisible to design review because both layers look fine alone.
+      # Rides this already-required job rather than adding a required check
+      # (NEX-115 pattern: a new required check stalls every in-flight PR).
+      - name: Backdrop resolution
+        run: node scripts/check-backdrop-resolution.mjs
+      # DIFF-AWARE lint (NEX-115). Fails only on eslint ERRORS introduced on the PR's
+      # CHANGED LINES — for every rule — so a PR is never red'd by pre-existing debt in a
+      # file it merely touched (the keystone autonomous-harness blocker), while new code
+      # stays fully gated. GITHUB_BASE_REF (auto-set on pull_request) gives the diff base;
+      # the script reports green when it can't resolve the base or nothing changed.
+      # See scripts/lint-changed-lines.mjs and docs/plans/nex-115-diff-aware-lint-gate.md.
+      - name: Lint changed lines
+        run: node scripts/lint-changed-lines.mjs
+      # Native-billing guard (NEX-233): a WHOLE-REPO ratchet — fails if the paid
+      # entitlement could be unlocked off the App Store (third-party payment SDK,
+      # vendor checkout URL, or a raw Purchases.* purchase/restore call outside
+      # src/services/revenuecat.ts). Rides this already-required `lint` job (no new
+      # required check), like the @ts-nocheck ratchet rides `typecheck`. Standing
+      # rule + residual gaps: docs/automation/native-billing-policy.md.
+      - name: Native billing guard
+        run: node scripts/check-native-billing.mjs
+
+      # Ouroboros hero assets (NEX-327): the strip, the score-100 frame and the
+      # geometry profile are baked together by scripts/ouroboros/bake.py, and the
+      # runtime indexes the profile per strip column — so a half-committed bake is
+      # a crash, not a wobble. Rides this already-required job (NEX-115 pattern).
+      - name: Ouroboros hero assets
+        run: node scripts/check-ouroboros-assets.mjs
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # Pure-Node vitest suite, incl. the WEEKLY_TIPS app↔edge parity gate.
+      - run: npm run test
+
+  deno-check:
+    name: deno-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          # Need history so we can diff against the PR base.
+          fetch-depth: 0
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          # Pin Deno — there is no deno.json in this repo to pin it for us.
+          deno-version: v2.x
+      - name: Type-check changed edge functions
+        run: |
+          set -euo pipefail
+          base="origin/${{ github.base_ref }}"
+          if ! git rev-parse --verify "$base" >/dev/null 2>&1; then
+            echo "Could not resolve base ref '$base' — nothing to check."
+            exit 0
+          fi
+          mapfile -t targets < <(git diff --name-only --diff-filter=ACMR "$base"...HEAD -- 'supabase/functions/**/*.ts')
+          if [ "${#targets[@]}" -eq 0 ]; then
+            echo "No changed edge functions — reporting green."
+            exit 0
+          fi
+          echo "deno check on ${#targets[@]} changed file(s):"; printf '%s\n' "${targets[@]}"
+          # CHANGED-FILES-ONLY, mirroring the lint job: a PR must not be blocked by
+          # pre-existing type errors in edge functions it never touched. Trade-off — a
+          # change to a _shared helper is NOT re-checked against its importers here. The
+          # stronger whole-tree (or importer-aware) check is blocked by 3 pre-existing
+          # edge-fn type errors tracked in NEX-170; restore it once those are fixed.
+          # --allow-import lets the remote (esm.sh / deno.land) imports resolve.
+          deno check --allow-import "${targets[@]}"
+      - name: Test speech provider and request deadlines
+        run: deno test --allow-import supabase/functions/_shared/tts-provider.test.ts supabase/functions/_shared/tts-request.test.ts

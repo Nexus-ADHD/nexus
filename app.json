@@ -1,0 +1,262 @@
+{
+  "expo": {
+    "name": "Nexus",
+    "slug": "nexus",
+    "scheme": "nexus",
+    "version": "2.1.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "requireFullScreen": true,
+      "bundleIdentifier": "com.jhuff.nexus",
+      "infoPlist": {
+        "UISupportedInterfaceOrientations~ipad": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationPortraitUpsideDown",
+          "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight"
+        ],
+        "NSCalendarsUsageDescription": "Nexus requires access to your calendar to map your Active Horizon.",
+        "NSRemindersUsageDescription": "You wrote things down. Nexus brings them where you'll decide.",
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSMicrophoneUsageDescription": "Nexus uses your microphone to hear you speak during onboarding and voice capture moments.",
+        "NSSpeechRecognitionUsageDescription": "Nexus uses speech recognition to turn what you speak into text, so you can capture thoughts, answer onboarding prompts, and log quick reflections without typing.",
+        "NSPhotoLibraryUsageDescription": "Nexus may access your photo library to let you attach images to notes and journal entries.",
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLName": "com.jhuff.nexus.googleoauth",
+            "CFBundleURLSchemes": []
+          }
+        ]
+      },
+      "buildNumber": "268",
+      "entitlements": {
+        "com.apple.developer.applesignin": [
+          "Default"
+        ],
+        "com.apple.security.application-groups": [
+          "group.com.jhuff.nexus"
+        ]
+      },
+      "usesAppleSignIn": true,
+      "privacyManifests": {
+        "NSPrivacyAccessedAPITypes": [
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "CA92.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryFileTimestamp",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "C617.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategorySystemBootTime",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "35F9.1"
+            ]
+          }
+        ],
+        "NSPrivacyCollectedDataTypes": [
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeEmailAddress",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeName",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypePhoneNumber",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeAudioData",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeOtherUserContent",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+              "NSPrivacyCollectedDataTypePurposeProductPersonalization"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeUserID",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+              "NSPrivacyCollectedDataTypePurposeAnalytics"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypePurchaseHistory",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeProductInteraction",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAnalytics"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeAdvertisingData",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeDeveloperAdvertising"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeCrashData",
+            "NSPrivacyCollectedDataTypeLinked": false,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypePerformanceData",
+            "NSPrivacyCollectedDataTypeLinked": false,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeOtherDiagnosticData",
+            "NSPrivacyCollectedDataTypeLinked": false,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          }
+        ]
+      }
+    },
+    "android": {
+      "package": "com.jhuff.nexus",
+      "permissions": [
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Nexus requires access to your calendar to map your Active Horizon.",
+          "remindersPermission": "Nexus requires access to your reminders to sync your execution inbox."
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-secure-store",
+      "expo-notifications",
+      "expo-apple-authentication",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Nexus uses your microphone to hear you speak during onboarding and voice capture moments.",
+          "speechRecognitionPermission": "Nexus uses speech recognition to turn what you speak into text, so you can capture thoughts, answer onboarding prompts, and log quick reflections without typing."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.1",
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#000000"
+        }
+      ],
+      "expo-localization",
+      "expo-web-browser",
+      "expo-video",
+      "@react-native-google-signin/google-signin",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "organization": "your-sentry-org",
+          "project": "your-sentry-project"
+        }
+      ]
+    ],
+    "extra": {
+      "router": {},
+      "EXPO_PUBLIC_INTERNAL_USER_IDS": "",
+      "eas": {
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "targetName": "NexusWidget",
+                  "bundleIdentifier": "com.jhuff.nexus.NexusWidget",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.jhuff.nexus"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "EXPO_PUBLIC_SUPABASE_URL": "",
+      "EXPO_PUBLIC_SUPABASE_ANON_KEY": "",
+      "EXPO_PUBLIC_GOOGLE_CALENDAR_CLIENT_ID": "",
+      "EXPO_PUBLIC_GOOGLE_CALENDAR_REDIRECT_URI": "",
+      "EXPO_PUBLIC_MICROSOFT_CALENDAR_CLIENT_ID": "",
+      "EXPO_PUBLIC_MICROSOFT_CALENDAR_REDIRECT_URI": "",
+      "EXPO_PUBLIC_AI_PROXY_URL": "",
+      "EXPO_PUBLIC_AI_PROXY_TOKEN": "",
+      "EXPO_PUBLIC_POSTHOG_KEY": "",
+      "EXPO_PUBLIC_POSTHOG_HOST": "https://us.i.posthog.com",
+      "EXPO_PUBLIC_GOOGLE_SIGNIN_IOS_CLIENT_ID": "",
+      "EXPO_PUBLIC_REVENUECAT_API_KEY": "",
+      "EXPO_PUBLIC_SENTRY_DSN": ""
+    },
+    "runtimeVersion": "2.1.0"
+  }
+}

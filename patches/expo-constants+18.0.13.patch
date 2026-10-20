@@ -1,0 +1,21 @@
+diff --git a/node_modules/expo-constants/build/Constants.js b/node_modules/expo-constants/build/Constants.js
+index d14277e..cf868e7 100644
+--- a/node_modules/expo-constants/build/Constants.js
++++ b/node_modules/expo-constants/build/Constants.js
+@@ -113,7 +113,15 @@ Object.defineProperties(constants, {
+                 return maybeManifest.extra?.expoClient ?? null;
+             }
+             else if (isEmbeddedManifest(maybeManifest)) {
+-                return maybeManifest;
++                // NEXUS PATCH (build-178 incident): when expo-updates launches a
++                // DB-cached embedded update from a DIFFERENT binary (out-of-order
++                // installs), isEmbeddedLaunch is false and this branch returns the
++                // bare manifest ({assets, commitTime, id}) — no scheme/extra. Any
++                // expo-linking createURL() then throws "Cannot make a deep link
++                // into a standalone app with no custom scheme defined" during
++                // expo-router mount, hard-crashing release builds at launch.
++                // The binary's own app.config is the best available truth here.
++                return rawAppConfig ?? maybeManifest;
+             }
+             return null;
+         },

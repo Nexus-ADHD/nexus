@@ -1,0 +1,50 @@
+{
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "channel": "preview",
+      "ios": {
+        "simulator": false,
+        "autoIncrement": true,
+        "credentialsSource": "remote"
+      },
+      "env": {
+        "SENTRY_ORG": "your-sentry-org",
+        "SENTRY_PROJECT": "your-sentry-project"
+      }
+    },
+    "production": {
+      "credentialsSource": "remote",
+      "channel": "production",
+      "env": {
+        "SENTRY_ORG": "your-sentry-org",
+        "SENTRY_PROJECT": "your-sentry-project"
+      },
+      "ios": {
+        "autoIncrement": true
+      }
+    },
+    "widgets": {
+      "extends": "production",
+      "config": "widgets.yml",
+      "channel": "production",
+      "ios": {
+        "image": "macos-sequoia-15.5-xcode-26.0",
+        "autoIncrement": true,
+        "credentialsSource": "remote"
+      },
+      "env": {
+        "SENTRY_ORG": "your-sentry-org",
+        "SENTRY_PROJECT": "your-sentry-project"
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+# Edge-function deploy manifest — source of truth for `scripts/deploy-edge-function.sh`.
+#
+# Format: name|verify_jwt   (one row per deployable function; '#' lines and blanks ignored)
+#
+# verify_jwt mirrors the LIVE prod config as of 2026-06-25,
+# read from the Supabase management API — NOT inferred from the function's auth code. This
+# is deliberate: a re-deploy must preserve current gateway behavior exactly. `false` means
+# the function self-authenticates (or is service-invoked) and is deployed with
+# `--no-verify-jwt`; `true` means the gateway enforces the JWT and the function is deployed
+# plain. Regenerate with: supabase functions list (or the management API) and copy verify_jwt.
+#
+# Every directory under supabase/functions/ (except _shared) MUST appear here exactly once,
+# and every row MUST have a matching directory — the deploy script refuses on any drift, so a
+# newly added function cannot ship until its flag is recorded here.
+ai-proxy|false
+sms-webhook|false
+post-purchase-confirm|false
+upsert-profile|false
+email-scheduler|false
+verify-tables|false
+weekly-summary|true
+welcome-email|false
+trial-day-3|false
+trial-day-7|false
+trial-day-12|false
+trial-day-13|false
+rc-winback-webhook|false
+extend-trial|true
+delete-account|true
+export-account|true
+sms-opt-in|true
+send-sms-broadcast|true
+weekly-broadcast|true
+weekly-summary-scheduler|true
+sms-daily-quotes|true

@@ -1,0 +1,128 @@
+build:
+  name: Nexus Widgets Build
+  steps:
+    - eas/checkout
+    - run:
+        name: Install node modules
+        command: npm install --legacy-peer-deps
+    - run:
+        name: Prebuild iOS
+        command: |
+          # Let prebuild's fresh `pod install` stand — do NOT restore the
+          # committed Podfile.lock over it. An earlier version of this step
+          # backed up the committed lock and copied it back after prebuild,
+          # intending to pin pod versions. That restore ran AFTER pod install,
+          # so it never pinned anything; it only made the committed lock
+          # disagree with Pods/Manifest.lock whenever a floating transitive
+          # pod (AppCheckCore, GoogleUtilities, PromisesObjC...) shipped a
+          # patch — failing every archive at "[CP] Check Pods Manifest.lock:
+          # The sandbox is not in sync with the Podfile.lock" (every widgets
+          # build after 2026-06-09 until this change; two builds confirmed
+          # even a freshly matched lock still trips on checksum-level diffs).
+          # With no restore, Podfile.lock == Manifest.lock by construction.
+          # Tradeoff (accepted 2026-07-16): CI resolves floating transitive
+          # pods at build time instead of a frozen set. Direct deps stay
+          # pinned by the Podfile itself.
+          npx expo prebuild --platform ios --clean
+    # The manual prebuild above starts from app.json's production channel.
+    # Rewrite native update metadata from the selected EAS profile so review
+    # builds stay isolated from production OTA updates.
+    - eas/configure_eas_update
+    - run:
+        name: Patch native widget targets
+        command: node scripts/add-native-targets.js
+    - eas/configure_ios_credentials
+    # Generate the Gymfile explicitly with credentials so gym gets
+    # export_options.method (app-store). Without this step, run_fastlane's
+    # implicit Gymfile leaves export_method empty and gym aborts with
+    # "mismatch between your provided export_method and the selected
+    # provisioning profiles" (builds 3402c62/0835620, 2026-08-08).
+    - eas/generate_gymfile_from_template:
+        inputs:
+          credentials: ${ eas.job.secrets.buildCredentials }
+    - eas/run_fastlane
+    - run:
+        name: Upload to App Store Connect
+        command: |
+          set -eo pipefail
+          IPA=$(find "$PWD/ios" -name "*.ipa" | head -1)
+          if [ -z "$IPA" ]; then
+            echo "ERROR: no .ipa found under $PWD/ios"
+            exit 1
+          fi
+          echo "IPA: $IPA"
+          # Validate the archive we are about to upload, not just app.json. This
+          # catches the wrong local build number or OTA channel before Apple has
+          # an immutable binary with those values.
+          VERIFY_DIR=$(mktemp -d)
+          unzip -q "$IPA" -d "$VERIFY_DIR"
+          APP=$(find "$VERIFY_DIR/Payload" -maxdepth 1 -name "*.app" | head -1)
+          if [ -z "$APP" ]; then
+            echo "ERROR: host app not found in IPA"
+            exit 1
+          fi
+          EXPECTED_BUILD=$(node -p "require('./app.json').expo.ios.buildNumber")
+          EXPECTED_RUNTIME=$(node -p "require('./app.json').expo.runtimeVersion")
+          EXPECTED_CHANNEL=production
+          if [ "${EAS_BUILD_PROFILE:-}" = "plaud-review" ]; then
+            EXPECTED_CHANNEL=plaud-review
+          fi
+          ACTUAL_BUILD=$(plutil -extract CFBundleVersion raw "$APP/Info.plist")
+          ACTUAL_BUNDLE=$(plutil -extract CFBundleIdentifier raw "$APP/Info.plist")
+          ACTUAL_RUNTIME=$(plutil -extract EXUpdatesRuntimeVersion raw "$APP/Expo.plist")
+          ACTUAL_CHANNEL=$(plutil -extract EXUpdatesRequestHeaders.expo-channel-name raw "$APP/Expo.plist")
+          test "$ACTUAL_BUILD" = "$EXPECTED_BUILD" || { echo "ERROR: IPA build $ACTUAL_BUILD != $EXPECTED_BUILD"; exit 1; }
+          test "$ACTUAL_BUNDLE" = "com.jhuff.nexus" || { echo "ERROR: unexpected IPA bundle $ACTUAL_BUNDLE"; exit 1; }
+          test "$ACTUAL_RUNTIME" = "$EXPECTED_RUNTIME" || { echo "ERROR: IPA runtime $ACTUAL_RUNTIME != $EXPECTED_RUNTIME"; exit 1; }
+          test "$ACTUAL_CHANNEL" = "$EXPECTED_CHANNEL" || { echo "ERROR: IPA channel $ACTUAL_CHANNEL != $EXPECTED_CHANNEL"; exit 1; }
+          # The app must be universal (iPhone + iPad). app.json's supportsTablet
+          # only reaches the binary via the REGENERATED pbxproj, so a reset of
+          # the tracked ios/ skeleton after prebuild silently ships iPhone-only
+          # (build 251 opened letterboxed on iPad; 2026-08-25). Shared with the
+          # LOCAL archive flow — that path shipped
+          # 250/252/253 while the EAS quota was out, and a guard that covers
+          # only one of two release paths is not a guard.
+          node scripts/verify-ipa.mjs --app "$APP" \
+            --build "$EXPECTED_BUILD" --runtime "$EXPECTED_RUNTIME" --channel "$EXPECTED_CHANNEL"
+          # Auth: App Store Connect API key (NOT an app-specific password —
+          # Apple's ASP auth started rejecting the previously-working password
+          # mid-session on 2026-08-07, and ASPs die silently on password resets
+          # anyway). The .p8 lives in the ASC_API_KEY_P8_B64 EAS env var
+          # (sensitive) and is materialized where altool looks for it.
+          mkdir -p ~/.appstoreconnect/private_keys
+          KEY_FILE=~/.appstoreconnect/private_keys/AuthKey_${ASC_API_KEY_ID}.p8
+          if [ -n "${ASC_API_KEY_P8_B64:-}" ]; then
+            echo "$ASC_API_KEY_P8_B64" | base64 --decode > "$KEY_FILE"
+          elif [ ! -s "$KEY_FILE" ]; then
+            echo "ERROR: App Store Connect API key is unavailable"
+            exit 1
+          fi
+          # altool exits 0 even when Apple REJECTS the upload (validation
+          # errors only exist inside the XML body — e.g. the stale-version
+          # rejection that silently ate builds 210/211 while EAS reported
+          # FINISHED). So: capture the output, trust neither the exit code
+          # alone nor the pipe, and fail the step on any error marker.
+          OUT=$(xcrun altool --upload-app --file "$IPA" --type ios \
+            --apiKey "$ASC_API_KEY_ID" \
+            --apiIssuer "$ASC_API_ISSUER_ID" \
+            --output-format xml 2>&1) || ALTOOL_STATUS=$?
+          echo "$OUT" | tail -30
+          if [ "${ALTOOL_STATUS:-0}" -ne 0 ]; then
+            echo "ERROR: altool exited $ALTOOL_STATUS"
+            exit "$ALTOOL_STATUS"
+          fi
+          if echo "$OUT" | grep -qE 'product-errors|Validation failed|Error Domain|UPLOAD FAILED'; then
+            echo "ERROR: altool reported an upload/validation failure despite exiting 0 (see XML above)"
+            exit 1
+          fi
+          if ! echo "$OUT" | grep -q 'success-message\|UPLOAD SUCCEEDED'; then
+            echo "ERROR: altool output has no success marker — treating the upload as failed"
+            exit 1
+          fi
+          node scripts/wait-for-app-store-build.mjs \
+            --key-id "$ASC_API_KEY_ID" \
+            --issuer-id "$ASC_API_ISSUER_ID" \
+            --key-file "$KEY_FILE" \
+            --app-id "$ASC_APP_ID" \
+            --build-number "$EXPECTED_BUILD" \
+            --timeout-seconds 2400
